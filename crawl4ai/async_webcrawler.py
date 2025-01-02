@@ -328,6 +328,7 @@ class AsyncWebCrawler:
                         crawl_result.response_headers = async_response.response_headers
                         crawl_result.ssl_certificate = async_response.ssl_certificate
                         crawl_result.downloaded_files = async_response.downloaded_files
+                        crawl_result.redirect_chains = async_response.redirect_chains
                     else:
                         crawl_result.status_code = 200
                         crawl_result.response_headers = cached_result.response_headers if cached_result else {}

@@ -727,7 +727,8 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
         response_headers = {}
         ssl_certificate = None
         status_code = None
-        
+        redirect_chains = []
+
         # Reset downloaded files list for new crawl
         self._downloaded_files = []
         
@@ -763,7 +764,16 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 tag="ERROR",
                 params={"exc": exc}
             ))
-        
+
+        # Set up to trace redirection
+        def trace_request(response):
+            req =  response.request
+            if req.redirected_from:
+                to_url = req.url
+                redirect_chains.append(to_url)
+
+        page.on('response', trace_request)
+
         try:
             # Set up download handling
             if self.browser_config.accept_downloads:
@@ -970,6 +980,7 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             return AsyncCrawlResponse(
                 html=html,
                 real_url=real_url,
+                redirect_chains=redirect_chains,
                 response_headers=response_headers,
                 ssl_certificate=ssl_certificate,
                 status_code=status_code,
