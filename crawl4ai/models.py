@@ -30,6 +30,7 @@ class CrawlResult(BaseModel):
     media: Dict[str, List[Dict]] = {}
     links: Dict[str, List[Dict]] = {}
     downloaded_files: Optional[List[str]] = None
+    real_url: Optional[str] = None
     screenshot: Optional[str] = None
     pdf : Optional[bytes] = None
     markdown: Optional[Union[str, MarkdownGenerationResult]] = None
@@ -47,6 +48,7 @@ class CrawlResult(BaseModel):
 
 class AsyncCrawlResponse(BaseModel):
     html: str
+    real_url: str
     response_headers: Dict[str, str]
     status_code: int
     ssl_certificate: Optional[SecurityDetails] = None

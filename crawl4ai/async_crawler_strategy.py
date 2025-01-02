@@ -2,31 +2,25 @@ import asyncio
 import base64
 import time
 from abc import ABC, abstractmethod
-from typing import Callable, Dict, Any, List, Optional, Awaitable
-import os, sys, shutil
-import tempfile, subprocess
-from playwright.async_api import async_playwright, Page, Browser, Error, BrowserContext
+from typing import Callable, Dict, List, Optional
+import os
+import sys
+import shutil
+import tempfile
+import subprocess
+from playwright.async_api import Page, Error, BrowserContext
 from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
-from pathlib import Path
-from playwright.async_api import ProxySettings
-from pydantic import BaseModel
-import hashlib
-import json
 import uuid
 from .js_snippet import load_js_script
 from .models import AsyncCrawlResponse
-from .utils import get_error_context
 from .user_agent_generator import UserAgentGenerator
 from .config import SCREENSHOT_HEIGHT_TRESHOLD, DOWNLOAD_PAGE_TIMEOUT
 from .async_configs import BrowserConfig, CrawlerRunConfig
-from playwright_stealth import StealthConfig, stealth_async
+from playwright_stealth import StealthConfig
 
 
-from io import BytesIO
-import base64
-from PIL import Image, ImageDraw, ImageFont
 
 stealth_config = StealthConfig(
     webdriver=True,
@@ -811,7 +805,7 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                             style.opacity !== '0';
                     }
                 """, timeout=30000)
-            except Error as e:
+            except Error:
                 visibility_info = await page.evaluate("""
                     () => {
                         const body = document.body;
@@ -969,9 +963,13 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 await asyncio.sleep(delay)
                 return await page.content()
 
+            # Get the final redirection url
+            real_url = page.url
+
             # Return complete response
             return AsyncCrawlResponse(
                 html=html,
+                real_url=real_url,
                 response_headers=response_headers,
                 ssl_certificate=ssl_certificate,
                 status_code=status_code,

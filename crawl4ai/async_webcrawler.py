@@ -1,10 +1,10 @@
-import os, sys
+import os
+import sys
 import time
 import warnings
-from enum import Enum
-from colorama import init, Fore, Back, Style
+from colorama import Fore
 from pathlib import Path
-from typing import Optional, List, Union
+from typing import Optional, List
 import json
 import asyncio
 # from contextlib import nullcontext, asynccontextmanager
@@ -21,14 +21,11 @@ from .content_scraping_strategy import WebScrapingStrategy
 from .async_logger import AsyncLogger
 from .async_configs import BrowserConfig, CrawlerRunConfig
 from .config import (
-    MIN_WORD_THRESHOLD, 
-    IMAGE_DESCRIPTION_MIN_WORD_THRESHOLD,
-    URL_LOG_SHORTEN_LENGTH
+    MIN_WORD_THRESHOLD
 )
 from .utils import (
     sanitize_input_encode,
     InvalidCSSSelectorError,
-    format_html,
     fast_format_html,
     create_box_message
 )
@@ -326,6 +323,7 @@ class AsyncWebCrawler:
 
                     # Set response data
                     if async_response:
+                        crawl_result.real_url = async_response.real_url
                         crawl_result.status_code = async_response.status_code
                         crawl_result.response_headers = async_response.response_headers
                         crawl_result.ssl_certificate = async_response.ssl_certificate
