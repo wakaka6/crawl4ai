@@ -1535,6 +1535,12 @@ def extract_metadata(html, soup=None):
 
     return metadata
 
+def extract_form_actions(html, soup):
+    if not html and not soup:
+        return []
+    if not soup:
+        soup = BeautifulSoup(html, 'lxml')
+    return [form.get("action") for form in soup.find_all("form") if form.get("action")]
 
 def extract_xml_tags(string):
     """

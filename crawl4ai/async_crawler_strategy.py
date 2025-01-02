@@ -856,7 +856,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             # Return complete response
             return AsyncCrawlResponse(
                 html=html,
-                real_url=real_url,
                 redirect_chains=redirect_chains,
                 response_headers=response_headers,
                 js_execution_result=execution_result,

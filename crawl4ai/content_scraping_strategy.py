@@ -17,8 +17,13 @@ from bs4 import NavigableString, Comment
 from bs4 import PageElement, Tag
 from urllib.parse import urljoin
 from requests.exceptions import InvalidSchema
+# from .content_cleaning_strategy import ContentCleaningStrategy
+from .content_filter_strategy import BM25ContentFilter#, HeuristicContentFilter
+from .markdown_generation_strategy import MarkdownGenerationStrategy, DefaultMarkdownGenerator
+from .models import MarkdownGenerationResult
 from .utils import (
     extract_metadata,
+    extract_form_actions,
     normalize_url,
     is_external_url,
     get_base_domain,
@@ -719,9 +724,19 @@ class WebScrapingStrategy(ContentScrapingStrategy):
                 "error",
                 message="Error extracting metadata: {error}",
                 tag="SCRAPE",
-                params={"error": str(e)},
+                params={"error": str(e)}
             )
             meta = {}
+
+        try:
+            form_actions = extract_form_actions("", soup)
+        except Exception as e:
+            self._log('error', 
+                message="Error extracting metadata: {error}",
+                tag="SCRAPE",
+                params={"error": str(e)}
+            )
+            form_actions = []
 
         # Handle tag-based removal first - faster than CSS selection
         excluded_tags = set(kwargs.get("excluded_tags", []) or [])
@@ -746,13 +761,14 @@ class WebScrapingStrategy(ContentScrapingStrategy):
             selected_elements = body.select(css_selector)
             if not selected_elements:
                 return {
-                    "markdown": "",
-                    "cleaned_html": "",
-                    "success": True,
-                    "media": {"images": [], "videos": [], "audios": []},
-                    "links": {"internal": [], "external": []},
-                    "metadata": {},
-                    "message": f"No elements found for CSS selector: {css_selector}",
+                    'markdown': '',
+                    'cleaned_html': '',
+                    'success': True,
+                    'media': {'images': [], 'videos': [], 'audios': []},
+                    'links': {'internal': [], 'external': []},
+                    'metadata': {},
+                    'form_actions': [],
+                    'message': f"No elements found for CSS selector: {css_selector}"
                 }
                 # raise InvalidCSSSelectorError(f"Invalid CSS selector, No elements found for CSS selector: {css_selector}")
             body = soup.new_tag("div")
@@ -808,7 +824,7 @@ class WebScrapingStrategy(ContentScrapingStrategy):
 
         str_body = ""
         try:
-            str_body = body.encode_contents().decode("utf-8")
+            str_body = body.encode_contents().decode('utf-8')
         except Exception:
             # Reset body to the original HTML
             success = False
@@ -848,11 +864,12 @@ class WebScrapingStrategy(ContentScrapingStrategy):
 
         return {
             # **markdown_content,
-            "cleaned_html": cleaned_html,
-            "success": success,
-            "media": media,
-            "links": links,
-            "metadata": meta,
+            'cleaned_html': cleaned_html,
+            'success': success,
+            'media': media,
+            'links': links,
+            'metadata': meta,
+            'form_actions': form_actions
         }
 
 

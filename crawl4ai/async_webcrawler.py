@@ -427,7 +427,6 @@ class AsyncWebCrawler:
                         **kwargs,
                     )
 
-                    crawl_result.real_url = async_response.real_url
                     crawl_result.status_code = async_response.status_code
                     crawl_result.redirected_url = async_response.redirected_url or url
                     crawl_result.response_headers = async_response.response_headers
@@ -563,6 +562,7 @@ class AsyncWebCrawler:
             media = result.get("media", {})
             links = result.get("links", {})
             metadata = result.get("metadata", {})
+            form_actions = result.get("form_actions", [])
         else:
             cleaned_html = sanitize_input_encode(result.cleaned_html)
             media = result.media.model_dump()
@@ -662,6 +662,7 @@ class AsyncWebCrawler:
             extracted_content=extracted_content,
             success=True,
             error_message="",
+            form_actions=form_actions,
         )
 
     async def arun_many(
