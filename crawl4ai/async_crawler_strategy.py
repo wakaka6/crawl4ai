@@ -491,6 +491,7 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
         execution_result = None
         status_code = None
         redirected_url = url 
+        redirect_chains = []
 
         # Reset downloaded files list for new crawl
         self._downloaded_files = []
@@ -521,7 +522,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
 
         # Set up console logging if requested
         if config.log_console:
-
             def log_consol(
                 msg, console_log_type="debug"
             ):  # Corrected the parameter syntax
@@ -540,6 +540,15 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
 
             page.on("console", log_consol)
             page.on("pageerror", lambda e: log_consol(e, "error"))
+
+        # Set up to trace redirection
+        def trace_request(response):
+            req =  response.request
+            if req.redirected_from:
+                to_url = req.url
+                redirect_chains.append(to_url)
+
+        page.on('response', trace_request)
 
         try:
             # Get SSL certificate information if requested and URL is HTTPS
@@ -847,6 +856,8 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             # Return complete response
             return AsyncCrawlResponse(
                 html=html,
+                real_url=real_url,
+                redirect_chains=redirect_chains,
                 response_headers=response_headers,
                 js_execution_result=execution_result,
                 status_code=status_code,
@@ -1862,4 +1873,3 @@ class AsyncHTTPCrawlerStrategy(AsyncCrawlerStrategy):
                     tag="CRAWL",
                     params={"error": str(e), "url": url}
                 )
-            raise

@@ -23,7 +23,7 @@ from .async_crawler_strategy import (
     AsyncPlaywrightCrawlerStrategy,
     AsyncCrawlResponse,
 )
-from .cache_context import CacheMode, CacheContext, _legacy_to_cache_mode
+from .cache_context import CacheMode, CacheContext
 from .markdown_generation_strategy import (
     DefaultMarkdownGenerator,
     MarkdownGenerationStrategy,
@@ -427,6 +427,7 @@ class AsyncWebCrawler:
                         **kwargs,
                     )
 
+                    crawl_result.real_url = async_response.real_url
                     crawl_result.status_code = async_response.status_code
                     crawl_result.redirected_url = async_response.redirected_url or url
                     crawl_result.response_headers = async_response.response_headers

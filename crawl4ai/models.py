@@ -115,6 +115,8 @@ class CrawlResult(BaseModel):
     cleaned_html: Optional[str] = None
     media: Dict[str, List[Dict]] = {}
     links: Dict[str, List[Dict]] = {}
+    form_actions: List[str] = []
+    redirect_chains: List[str] = []
     downloaded_files: Optional[List[str]] = None
     js_execution_result: Optional[Dict[str, Any]] = None
     screenshot: Optional[str] = None
@@ -251,6 +253,8 @@ class AsyncCrawlResponse(BaseModel):
     response_headers: Dict[str, str]
     js_execution_result: Optional[Dict[str, Any]] = None
     status_code: int
+    redirect_chains: List[str] = []
+    ssl_certificate: Optional[SecurityDetails] = None
     screenshot: Optional[str] = None
     pdf_data: Optional[bytes] = None
     get_delayed_content: Optional[Callable[[Optional[float]], Awaitable[str]]] = None
