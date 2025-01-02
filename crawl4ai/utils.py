@@ -6,7 +6,6 @@ import html
 import re
 import os
 import platform
-from .html2text import HTML2Text
 from .prompts import PROMPT_EXTRACT_BLOCKS
 from .config import *
 from pathlib import Path
@@ -14,8 +13,6 @@ from typing import Dict, Any
 from urllib.parse import urljoin
 import requests
 from requests.exceptions import InvalidSchema
-import hashlib
-from typing import Optional, Tuple, Dict, Any
 import xxhash
 from colorama import Fore, Style, init
 import textwrap
@@ -589,7 +586,7 @@ def get_content_of_website_optimized(url: str, html: str, word_count_threshold: 
                     else:
                         print(f"Failed to retrieve file size for {img_url}")
                         return None
-                except InvalidSchema as e:
+                except InvalidSchema:
                     return None
                 finally:
                     return
@@ -809,6 +806,13 @@ def extract_metadata(html, soup=None):
     
     return metadata
 
+def extract_form_actions(html, soup):
+    if not html and not soup:
+        return []
+    if not soup:
+        soup = BeautifulSoup(html, 'lxml')
+    return [form.get("action") for form in soup.find_all("form") if form.get("action")]
+
 def extract_xml_tags(string):
     tags = re.findall(r'<(\w+)>', string)
     return list(set(tags))
@@ -901,7 +905,7 @@ def extract_blocks(url, html, provider = DEFAULT_PROVIDER, api_token = None, bas
         ## Add error: False to the blocks
         for block in blocks:
             block['error'] = False
-    except Exception as e:
+    except Exception:
         parsed, unparsed = split_and_parse_json_objects(response.choices[0].message.content)
         blocks = parsed
         # Append all unparsed segments as onr error block and content is list of unparsed segments
@@ -946,7 +950,7 @@ def extract_blocks_batch(batch_data, provider = "groq/llama3-70b-8192", api_toke
             blocks = extract_xml_data(["blocks"], response.choices[0].message.content)['blocks']
             blocks = json.loads(blocks)
 
-        except Exception as e:
+        except Exception:
             blocks = [{
                 "index": 0,
                 "tags": ["error"],

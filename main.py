@@ -1,14 +1,9 @@
-import asyncio, os
-from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
-from fastapi.responses import JSONResponse
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+import asyncio
+import os
+from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware  
 from fastapi.templating import Jinja2Templates
-from fastapi.exceptions import RequestValidationError
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.responses import FileResponse
 from fastapi.responses import RedirectResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi import Depends, Security
@@ -18,13 +13,10 @@ from typing import Optional, List, Dict, Any, Union
 import psutil
 import time
 import uuid
-from collections import defaultdict
-from urllib.parse import urlparse
 import math
 import logging
 from enum import Enum
 from dataclasses import dataclass
-import json
 from crawl4ai import AsyncWebCrawler, CrawlResult, CacheMode
 from crawl4ai.config import MIN_WORD_THRESHOLD
 from crawl4ai.extraction_strategy import (

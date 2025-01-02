@@ -2,19 +2,21 @@ import re  # Point 1: Pre-Compile Regular Expressions
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional
 from bs4 import BeautifulSoup
-from concurrent.futures import ThreadPoolExecutor
-import asyncio, requests, re, os
+import asyncio
+import requests
+import os
 from .config import *
-from bs4 import element, NavigableString, Comment
+from bs4 import NavigableString, Comment
 from bs4 import PageElement, Tag
 from urllib.parse import urljoin
 from requests.exceptions import InvalidSchema
 # from .content_cleaning_strategy import ContentCleaningStrategy
-from .content_filter_strategy import RelevantContentFilter, BM25ContentFilter#, HeuristicContentFilter
+from .content_filter_strategy import BM25ContentFilter#, HeuristicContentFilter
 from .markdown_generation_strategy import MarkdownGenerationStrategy, DefaultMarkdownGenerator
 from .models import MarkdownGenerationResult
 from .utils import (
     extract_metadata,
+    extract_form_actions,
     normalize_url,
     is_external_url    
 )
@@ -47,7 +49,7 @@ def fetch_image_file_size(img, base_url):
         else:
             print(f"Failed to retrieve file size for {img_url}")
             return None
-    except InvalidSchema as e:
+    except InvalidSchema:
         return None
     finally:
         return
@@ -337,7 +339,7 @@ class WebScrapingStrategy(ContentScrapingStrategy):
                     # Normalize the URL
                     try:
                         normalized_href = normalize_url(href, url)
-                    except ValueError as e:
+                    except ValueError:
                         # logging.warning(f"Invalid URL format: {href}, Error: {str(e)}")
                         return False
                         
@@ -411,7 +413,7 @@ class WebScrapingStrategy(ContentScrapingStrategy):
                             return False
                     
                     return True  # Always keep image elements
-            except Exception as e:
+            except Exception:
                 raise "Error processing images"
             
             
@@ -494,9 +496,19 @@ class WebScrapingStrategy(ContentScrapingStrategy):
                 message="Error extracting metadata: {error}",
                 tag="SCRAPE",
                 params={"error": str(e)}
-            )            
+            )
             meta = {}
-        
+
+        try:
+            form_actions = extract_form_actions("", soup)
+        except Exception as e:
+            self._log('error', 
+                message="Error extracting metadata: {error}",
+                tag="SCRAPE",
+                params={"error": str(e)}
+            )
+            form_actions = []
+
         # Handle tag-based removal first - faster than CSS selection
         excluded_tags = set(kwargs.get('excluded_tags', []) or [])  
         if excluded_tags:
@@ -524,6 +536,7 @@ class WebScrapingStrategy(ContentScrapingStrategy):
                     'media': {'images': [], 'videos': [], 'audios': []},
                     'links': {'internal': [], 'external': []},
                     'metadata': {},
+                    'form_actions': [],
                     'message': f"No elements found for CSS selector: {css_selector}"
                 }
                 # raise InvalidCSSSelectorError(f"Invalid CSS selector, No elements found for CSS selector: {css_selector}")
@@ -568,7 +581,7 @@ class WebScrapingStrategy(ContentScrapingStrategy):
         str_body = ""
         try:
             str_body = body.encode_contents().decode('utf-8')
-        except Exception as e:
+        except Exception:
             # Reset body to the original HTML
             success = False
             body = BeautifulSoup(html, 'html.parser')
@@ -594,7 +607,7 @@ class WebScrapingStrategy(ContentScrapingStrategy):
             body.body.append(error_div)
             str_body = body.encode_contents().decode('utf-8')
             
-            print(f"[LOG] 😧 Error: After processing the crawled HTML and removing irrelevant tags, nothing was left in the page. Check the markdown for further details.")
+            print("[LOG] 😧 Error: After processing the crawled HTML and removing irrelevant tags, nothing was left in the page. Check the markdown for further details.")
             self._log('error',
                 message="After processing the crawled HTML and removing irrelevant tags, nothing was left in the page. Check the markdown for further details.",
                 tag="SCRAPE"
@@ -616,5 +629,6 @@ class WebScrapingStrategy(ContentScrapingStrategy):
             'success': success,
             'media': media,
             'links': links,
-            'metadata': meta
+            'metadata': meta,
+            'form_actions': form_actions
         }

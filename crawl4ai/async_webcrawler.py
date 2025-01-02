@@ -442,6 +442,7 @@ class AsyncWebCrawler:
             media = result.get("media", [])
             links = result.get("links", [])
             metadata = result.get("metadata", {})
+            form_actions = result.get("form_actions", [])
 
             # Markdown Generation
             markdown_generator: Optional[MarkdownGenerationStrategy] = config.markdown_generator or DefaultMarkdownGenerator()
@@ -512,6 +513,7 @@ class AsyncWebCrawler:
                 fit_markdown=fit_markdown,
                 fit_html=fit_html,
                 media=media,
+                form_actions=form_actions,
                 links=links,
                 metadata=metadata,
                 screenshot=screenshot_data,

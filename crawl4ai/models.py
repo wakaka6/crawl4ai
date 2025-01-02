@@ -29,6 +29,7 @@ class CrawlResult(BaseModel):
     cleaned_html: Optional[str] = None
     media: Dict[str, List[Dict]] = {}
     links: Dict[str, List[Dict]] = {}
+    form_actions: List[str] = []
     downloaded_files: Optional[List[str]] = None
     real_url: Optional[str] = None
     screenshot: Optional[str] = None
