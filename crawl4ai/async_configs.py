@@ -29,7 +29,7 @@ class BrowserConfig:
         user_data_dir (str or None): Path to a user data directory for persistent sessions. If None, a
                                      temporary directory may be used. Default: None.
         chrome_channel (str): The Chrome channel to launch (e.g., "chrome", "msedge"). Only applies if browser_type
-                              is "chromium". Default: "chrome".
+                              is "chromium". Default: "chromium".
         proxy (str or None): Proxy server URL (e.g., "http://username:password@proxy:port"). If None, no proxy is used.
                              Default: None.
         proxy_config (dict or None): Detailed proxy configuration, e.g. {"server": "...", "username": "..."}.
@@ -141,7 +141,7 @@ class BrowserConfig:
             use_managed_browser=kwargs.get("use_managed_browser", False),
             use_persistent_context=kwargs.get("use_persistent_context", False),
             user_data_dir=kwargs.get("user_data_dir"),
-            chrome_channel=kwargs.get("chrome_channel", "chrome"),
+            chrome_channel=kwargs.get("chrome_channel", "chromium"),
             proxy=kwargs.get("proxy"),
             proxy_config=kwargs.get("proxy_config"),
             viewport_width=kwargs.get("viewport_width", 1920),
