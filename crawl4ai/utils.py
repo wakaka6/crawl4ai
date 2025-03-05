@@ -1954,6 +1954,56 @@ def fast_format_html(html_string):
     return "\n".join(formatted)
 
 
+def normalize_proxy_config(proxy_config: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    """
+    Normalize proxy configuration to ensure consistency.
+
+    Args:
+        proxy_config (Dict[str, Any]): The proxy configuration.
+
+    Returns:
+        Dict[str, Any]: The normalized proxy configuration.
+    """
+    if not proxy_config:
+        return proxy_config
+
+    server = proxy_config.get("server")
+    username = proxy_config.get("username")
+    password = proxy_config.get("password")
+
+    if not server:
+        return proxy_config
+    
+    from urllib.parse import urlparse
+
+    parsed = urlparse(server)
+    # urlparse("1.1.1.1:8090") -> scheme='', netloc='', path='1.1.1.1:8090'
+    # urlparse("localhost:8090") -> scheme='localhost', netloc='', path='8090'
+    # if both of these cases, we need to try re-parse URL with `http://` prefix.
+    if not parsed.netloc or not parsed.scheme:
+        parsed = urlparse(f"http://{server}")
+    
+    # The server field takes precedence over username and password.
+    if "@" in parsed.netloc:  
+        auth_part, host_part = parsed.netloc.split("@", 1)
+        if ":" in auth_part:
+            username, password = auth_part.split(":", 1)
+        else:
+            username = auth_part
+            password = ""
+        server = f"{parsed.scheme}://{host_part}"
+    else:
+        server = f"{parsed.scheme}://{parsed.netloc}"
+
+    proxy_config.update({
+        "server": server,
+        "username": username,
+        "password": password,
+    })
+
+    return proxy_config
+
+
 def normalize_url(href, base_url):
     """Normalize URLs to ensure consistent format"""
     from urllib.parse import urljoin, urlparse

@@ -1,4 +1,3 @@
-from re import U
 from pydantic import BaseModel, HttpUrl, PrivateAttr
 from typing import List, Dict, Optional, Callable, Awaitable, Union, Any
 from enum import Enum
@@ -254,7 +253,6 @@ class AsyncCrawlResponse(BaseModel):
     js_execution_result: Optional[Dict[str, Any]] = None
     status_code: int
     redirect_chains: List[str] = []
-    ssl_certificate: Optional[SecurityDetails] = None
     screenshot: Optional[str] = None
     pdf_data: Optional[bytes] = None
     get_delayed_content: Optional[Callable[[Optional[float]], Awaitable[str]]] = None
