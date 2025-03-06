@@ -307,3 +307,4 @@ class ScrapingResult(BaseModel):
     media: Media = Media()
     links: Links = Links()
     metadata: Dict[str, Any] = {}
+    form_actions: List[str] = []

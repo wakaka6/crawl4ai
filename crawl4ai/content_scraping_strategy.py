@@ -18,9 +18,6 @@ from bs4 import PageElement, Tag
 from urllib.parse import urljoin
 from requests.exceptions import InvalidSchema
 # from .content_cleaning_strategy import ContentCleaningStrategy
-from .content_filter_strategy import BM25ContentFilter#, HeuristicContentFilter
-from .markdown_generation_strategy import MarkdownGenerationStrategy, DefaultMarkdownGenerator
-from .models import MarkdownGenerationResult
 from .utils import (
     extract_metadata,
     extract_form_actions,
@@ -141,6 +138,7 @@ class WebScrapingStrategy(ContentScrapingStrategy):
                 media=Media(),
                 links=Links(),
                 metadata={},
+                form_actions=[],
             )
 
         # Convert media items
@@ -182,6 +180,7 @@ class WebScrapingStrategy(ContentScrapingStrategy):
             media=media,
             links=links,
             metadata=raw_result.get("metadata", {}),
+            form_actions=raw_result.get("form_actions", [])
         )
 
     async def ascrap(self, url: str, html: str, **kwargs) -> ScrapingResult:

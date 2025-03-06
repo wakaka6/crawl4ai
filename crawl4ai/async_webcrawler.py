@@ -568,6 +568,7 @@ class AsyncWebCrawler:
             media = result.media.model_dump()
             links = result.links.model_dump()
             metadata = result.metadata
+            form_actions = result.form_actions
 
         ################################
         # Generate Markdown            #
