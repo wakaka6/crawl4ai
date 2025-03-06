@@ -9,7 +9,7 @@ from typing import Dict, Any, Optional
 from urllib.parse import urlparse
 import OpenSSL.crypto
 from pathlib import Path
-from crawl4ai.utils import normalize_proxy_config
+
 
 class SSLCertificate:
     """
@@ -54,12 +54,10 @@ class SSLCertificate:
 
             # Setup proxy if configuration is provided
             if proxy_config:
-                proxy_config = normalize_proxy_config(proxy_config)
                 proxy_server = proxy_config.get("server", "")
                 
                 if proxy_server:
                     parsed = urlparse(proxy_server)
-                    print(parsed.hostname)
                     proxy_host = parsed.hostname
                     proxy_port = parsed.port or 1080
                     proxy_schema = parsed.scheme or "socks"
@@ -137,14 +135,11 @@ class SSLCertificate:
                     except:
                         pass  # Ignore any errors during closing
 
-        except (socket.gaierror, socket.timeout) as e:
-            print("timeout", e)
+        except (socket.gaierror, socket.timeout):
             return None
-        except socks.ProxyError as e:
-            print("pxy ", e)
+        except socks.ProxyError:
             return None
-        except Exception as e:
-            print("base ", e)
+        except Exception:
             return None
 
     @staticmethod

@@ -554,7 +554,7 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             # Get SSL certificate information if requested and URL is HTTPS
             ssl_cert = None
             if config.fetch_ssl_certificate:
-                ssl_cert = SSLCertificate.from_url(url)
+                ssl_cert = SSLCertificate.from_url(url, proxy_config=config.proxy_config)
 
             # Set up download handling
             if self.browser_config.accept_downloads:

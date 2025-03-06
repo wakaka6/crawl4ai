@@ -42,6 +42,7 @@ from .utils import (
     create_box_message,
     get_error_context,
     RobotsParser,
+    normalize_proxy_config
 )
 
 from typing import Union, AsyncGenerator, TypeVar
@@ -371,6 +372,14 @@ class AsyncWebCrawler:
                         )
                         config.proxy_config = next_proxy
                         # config = config.clone(proxy_config=next_proxy)
+
+                if config.proxy_config:
+                    config.proxy_config = normalize_proxy_config(config.proxy_config)
+                    self.logger.info(
+                        message="Using proxy: {proxy}",
+                        tag="PROXY",
+                        params={"proxy": config.proxy_config.get("server", "")},
+                    )
 
                 # Fetch fresh content if needed
                 if not cached_result or not html:
