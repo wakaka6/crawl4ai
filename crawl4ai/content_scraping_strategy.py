@@ -739,13 +739,13 @@ class WebScrapingStrategy(ContentScrapingStrategy):
 
         # Handle tag-based removal first - faster than CSS selection
         excluded_tags = set(kwargs.get("excluded_tags", []) or [])
-        if excluded_tags:
+        if excluded_tags and body:
             for element in body.find_all(lambda tag: tag.name in excluded_tags):
                 element.extract()
 
         # Handle CSS selector-based removal
         excluded_selector = kwargs.get("excluded_selector", "")
-        if excluded_selector:
+        if excluded_selector and body:
             is_single_selector = (
                 "," not in excluded_selector and " " not in excluded_selector
             )
@@ -756,7 +756,7 @@ class WebScrapingStrategy(ContentScrapingStrategy):
                 for element in body.select(excluded_selector):
                     element.extract()
 
-        if css_selector:
+        if css_selector and body:
             selected_elements = body.select(css_selector)
             if not selected_elements:
                 return {
@@ -801,17 +801,19 @@ class WebScrapingStrategy(ContentScrapingStrategy):
         links["external"] = list(external_links_dict.values())
 
         # # Process images using ThreadPoolExecutor
-        imgs = body.find_all("img")
+        media["images"] = []
+        if body is not None:
+            imgs = body.find_all("img")
 
-        media["images"] = [
-            img
-            for result in (
-                self.process_image(img, url, i, len(imgs), **kwargs)
-                for i, img in enumerate(imgs)
-            )
-            if result is not None
-            for img in result
-        ]
+            media["images"] = [
+                img
+                for result in (
+                    self.process_image(img, url, i, len(imgs), **kwargs)
+                    for i, img in enumerate(imgs)
+                )
+                if result is not None
+                for img in result
+            ]
 
         body = self.flatten_nested_elements(body)
         base64_pattern = re.compile(r'data:image/[^;]+;base64,([^"]+)')
