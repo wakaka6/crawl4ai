@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Optional, Dict, Any
-from colorama import Fore, Style, init
+from colorama import Fore, Style, just_fix_windows_console
 import os
 from datetime import datetime
 
@@ -91,7 +91,7 @@ class AsyncLogger(AsyncLoggerBase):
             colors: Custom colors for different log levels
             verbose: Whether to output to console
         """
-        init()  # Initialize colorama
+        just_fix_windows_console()  # Initialize colorama
         self.log_file = log_file
         self.log_level = log_level
         self.tag_width = tag_width
