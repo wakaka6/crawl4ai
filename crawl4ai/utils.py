@@ -21,7 +21,7 @@ from urllib.parse import urljoin
 import requests
 from requests.exceptions import InvalidSchema
 import xxhash
-from colorama import Fore, Style, init
+from colorama import Fore, Style, just_fix_windows_console
 import textwrap
 import cProfile
 import pstats
@@ -440,7 +440,7 @@ def create_box_message(
         str: A formatted string containing the styled message box.
     """
 
-    init()
+    just_fix_windows_console()
 
     # Define border and text colors for different types
     styles = {
